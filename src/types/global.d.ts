@@ -13,11 +13,26 @@ export declare global {
     shape: keyof typeof Shape;
   }
 
-  interface Move {
-    radius: number;
+  interface CircleInfo {
+    cX: number;
+    cY: number;
+    radiusX: number;
+    radiusY: number;
+  }
+
+  interface RectInfo {
     width: number;
     height: number;
+  }
+
+  interface ImgInfo {
     base64: string;
+  }
+
+  interface Move {
+    circle: CircleInfo;
+    rect: RectInfo;
+    img: ImgInfo;
     path: [number, number][];
     options: CtxOptions;
     timestamp: number;

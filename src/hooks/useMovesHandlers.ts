@@ -76,6 +76,7 @@ export const useMovesHandlers = () => {
       ctx.strokeStyle = moveOption.lineColor;
       const originalComposite = ctx.globalCompositeOperation;
       if (move.eraser) ctx.globalCompositeOperation = "destination-out";
+      else ctx.globalCompositeOperation = "source-over";
 
       ctx.beginPath();
       switch (move.options.shape) {
@@ -90,11 +91,13 @@ export const useMovesHandlers = () => {
           ctx.stroke();
           break;
         case "circle":
-          ctx.arc(path[0][0], path[0][1], move.radius, 0, 2 * Math.PI);
+          const { cX, cY, radiusX, radiusY } = move.circle;
+          ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
           ctx.stroke();
           break;
         case "rect":
-          ctx.rect(path[0][0], path[0][1], move.width, move.height);
+          const { width, height } = move.rect;
+          ctx.rect(path[0][0], path[0][1], width, height);
           ctx.stroke();
           break;
         default:
@@ -117,7 +120,7 @@ export const useMovesHandlers = () => {
         .map((move) => {
           return new Promise<HTMLImageElement>((resolve) => {
             const img = new Image();
-            img.src = move.base64;
+            img.src = move.img.base64;
             img.id = move.id;
             img.onload = () => resolve(img);
           });
@@ -156,7 +159,7 @@ export const useMovesHandlers = () => {
       const lastMove = sortedMoves[sortedMoves.length - 1];
       if (lastMove.options.shape === "image") {
         const img = new Image();
-        img.src = lastMove.base64;
+        img.src = lastMove.img.base64;
         img.onload = () => {
           drawMove(lastMove, img);
           copyCanvasToSmall();

@@ -24,14 +24,29 @@ export const drawCircle = (
   from: [number, number],
   x: number,
   y: number,
-) => {
-  const radius = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
+  shift?: boolean,
+): CircleInfo => {
+  const cX = (from[0] + x) / 2;
+  const cY = (from[1] + y) / 2;
+
+  let radiusX = 0;
+  let radiusY = 0;
+
+  if (shift) {
+    const d = Math.sqrt((x - from[0]) ** 2 + (y - from[1]) ** 2);
+    radiusX = d / 2 / Math.sqrt(2);
+    radiusY = d / 2 / Math.sqrt(2);
+  } else {
+    radiusX = Math.abs(cX - from[0]);
+    radiusY = Math.abs(cY - from[1]);
+  }
+
   ctx.beginPath();
-  ctx.arc(from[0], from[1], radius, 0, 2 * Math.PI);
+  ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
   ctx.stroke();
   ctx.closePath();
 
-  return radius;
+  return { cX, cY, radiusX, radiusY };
 };
 
 export const drawRect = (

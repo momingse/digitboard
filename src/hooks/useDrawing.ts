@@ -8,13 +8,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useBoardPosition } from "./useBoardPosition";
 import { useRefs } from "./useRefs";
 
+const CIRCLE_INFO_DEFAULT: CircleInfo = Object.freeze({
+  cX: 0,
+  cY: 0,
+  radiusX: 0,
+  radiusY: 0,
+});
+
 export const useDrawing = (blocked: boolean = false) => {
   const { canvasRef } = useRefs();
   const options = useOptionsStoreOptionsSelector();
   const { users } = useUsersStore((state) => state);
   const [drawing, setDrawing] = useState(false);
   const tempMoves = useRef<[number, number][]>([]);
-  const tempRadius = useRef<number>(0);
+  const tempCircle = useRef<CircleInfo>({ ...CIRCLE_INFO_DEFAULT });
   const tempSize = useRef<{ width: number; height: number }>({
     width: 0,
     height: 0,
@@ -82,22 +89,23 @@ export const useDrawing = (blocked: boolean = false) => {
     setDrawing(false);
     ctx.closePath();
 
-    if (options.shape !== "circle") tempRadius.current = 0;
-    if (options.shape !== "rect") tempSize.current = { width: 0, height: 0 };
-
     const move: Move = {
-      ...tempSize.current,
-      radius: tempRadius.current,
+      rect: {
+        ...tempSize.current,
+      },
+      circle: {
+        ...tempCircle.current,
+      },
+      img: { base64: "" },
       path: tempMoves.current,
       options,
       timestamp: 0,
       eraser: options.erase,
-      base64: "",
       id: "",
     };
 
     tempMoves.current = [];
-    tempRadius.current = 0;
+    tempCircle.current = { ...CIRCLE_INFO_DEFAULT };
     tempSize.current = { width: 0, height: 0 };
     tempImageDate.current = undefined;
 
@@ -121,7 +129,7 @@ export const useDrawing = (blocked: boolean = false) => {
         break;
       case "circle":
         drawAndSet();
-        tempRadius.current = drawCircle(ctx, tempMoves.current[0], nx, ny);
+        tempCircle.current = drawCircle(ctx, tempMoves.current[0], nx, ny, shift);
         break;
       case "rect":
         drawAndSet();
