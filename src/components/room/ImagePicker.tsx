@@ -3,7 +3,7 @@ import { optimizeImage } from "@/lib/optimizeImage";
 import { useEffect } from "react";
 import { BsFillImageFill } from "react-icons/bs";
 
-export const ImageChoser = () => {
+export const ImagePicker = () => {
   const { setMoveImage } = useMoveImage();
 
   useEffect(() => {

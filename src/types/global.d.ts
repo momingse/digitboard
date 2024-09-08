@@ -6,11 +6,19 @@ export declare global {
     image = "image",
   }
 
+  type CtxMode = "erase" | "draw" | "select";
+
   interface CtxOptions {
     lineWidth: number;
     lineColor: string;
-    erase: boolean;
     shape: keyof typeof Shape;
+    mode: CtxMode;
+    selection: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null;
   }
 
   interface CircleInfo {

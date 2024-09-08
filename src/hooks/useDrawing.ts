@@ -1,13 +1,16 @@
 import { drawCircle, drawLine, drawRect } from "@/helper/canvasHelper";
 import { getPos } from "@/lib/getPos";
 import { socket } from "@/lib/socket";
-import { useOptionsStoreOptionsSelector } from "@/store/options/options-use";
-import { useRoomStore } from "@/store/room/room-use";
-import { useUsersStore } from "@/store/users/users-use";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useBoardPosition } from "./useBoardPosition";
-import { useRefs } from "./useRefs";
+import {
+  useOptionsStore,
+  useOptionsStoreOptionsSelector,
+} from "@/store/options/options-use";
 import { useSaveMovesStore } from "@/store/saveMoves/saveMoves-use";
+import { useUsersStore } from "@/store/users/users-use";
+import { useCallback, useRef, useState } from "react";
+import { useBoardPosition } from "./useBoardPosition";
+import { useCtx } from "./useCtx";
+import { useRefs } from "./useRefs";
 
 const CIRCLE_INFO_DEFAULT: CircleInfo = Object.freeze({
   cX: 0,
@@ -21,6 +24,7 @@ export const useDrawing = (blocked: boolean = false) => {
   const options = useOptionsStoreOptionsSelector();
   const { users } = useUsersStore((state) => state);
   const { clearMoves } = useSaveMovesStore((state) => state);
+  const { selection, setSelection } = useOptionsStore((state) => state);
 
   const [drawing, setDrawing] = useState(false);
   const tempMoves = useRef<[number, number][]>([]);
@@ -33,7 +37,7 @@ export const useDrawing = (blocked: boolean = false) => {
 
   const { x: movedX, y: movedY } = useBoardPosition();
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+  const ctx = useCtx();
 
   const setUpCtxOption = useCallback(
     (ctx: CanvasRenderingContext2D | undefined) => {
@@ -42,19 +46,11 @@ export const useDrawing = (blocked: boolean = false) => {
       ctx.lineCap = "round";
       ctx.lineWidth = options.lineWidth;
       ctx.strokeStyle = options.lineColor;
-      ctx.globalCompositeOperation = options.erase
-        ? "destination-out"
-        : "source-over";
+      ctx.globalCompositeOperation =
+        options.mode === "erase" ? "destination-out" : "source-over";
     },
     [options],
   );
-
-  useEffect(() => {
-    const newCtx = canvasRef.current?.getContext("2d");
-    if (newCtx) {
-      setCtx(newCtx);
-    }
-  }, [canvasRef]);
 
   const drawAndSet = () => {
     if (!tempImageDate.current) {
@@ -78,7 +74,7 @@ export const useDrawing = (blocked: boolean = false) => {
     const nx = getPos(x, movedX);
     const ny = getPos(y, movedY);
 
-    if (options.shape === "line") {
+    if (options.shape === "line" && options.mode !== "select") {
       ctx.beginPath();
       ctx.moveTo(nx, ny);
       ctx.stroke();
@@ -86,7 +82,6 @@ export const useDrawing = (blocked: boolean = false) => {
 
     tempMoves.current = [];
     tempMoves.current.push([nx, ny]);
-    console.log("start drawing", tempMoves.current);
   };
 
   const handleEndDrawing = () => {
@@ -94,6 +89,19 @@ export const useDrawing = (blocked: boolean = false) => {
 
     setDrawing(false);
     ctx.closePath();
+
+    if (options.mode === "select") {
+      drawAndSet();
+
+      const x = tempMoves.current[0][0];
+      const y = tempMoves.current[0][1];
+      const width = tempMoves.current[tempMoves.current.length - 1][0] - x;
+      const height = tempMoves.current[tempMoves.current.length - 1][1] - y;
+
+      if (width < 0 || height < 0) return;
+
+      setSelection({ x, y, width, height });
+    }
 
     const move: Move = {
       rect: {
@@ -106,7 +114,7 @@ export const useDrawing = (blocked: boolean = false) => {
       path: tempMoves.current,
       options,
       timestamp: 0,
-      eraser: options.erase,
+      eraser: options.mode === "erase",
       id: "",
     };
 
@@ -115,6 +123,7 @@ export const useDrawing = (blocked: boolean = false) => {
     tempSize.current = { width: 0, height: 0 };
     tempImageDate.current = undefined;
 
+    if (options.mode === "select") return;
     socket.emit("draw", move);
     clearMoves();
   };
@@ -126,6 +135,16 @@ export const useDrawing = (blocked: boolean = false) => {
     const ny = getPos(y, movedY);
 
     drawAndSet();
+
+    if (options.mode === "select") {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+
+      drawRect(ctx, tempMoves.current[0], nx, ny, false, true);
+      tempMoves.current.push([nx, ny]);
+
+      return;
+    }
+
     switch (options.shape) {
       case "line":
         if (shift) {

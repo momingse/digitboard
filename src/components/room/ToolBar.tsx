@@ -1,10 +1,10 @@
 import { useRefs } from "@/hooks/useRefs";
 import { ColorPicker } from "./ColorPicker";
 import { DownloadButton } from "./DownloadButton";
-import { Eraser } from "./Eraser";
 import { HistoryButton } from "./HistoryButton";
-import { ImageChoser } from "./ImageChoser";
+import { ImagePicker } from "./ImagePicker";
 import { LineWidthPicker } from "./LineWidthPicker";
+import { ModePicker } from "./ModePicker";
 import { ShapeSelector } from "./ShapeSelector";
 
 export const ToolBar = () => {
@@ -22,8 +22,8 @@ export const ToolBar = () => {
       <ColorPicker />
       <ShapeSelector />
       <LineWidthPicker />
-      <Eraser />
-      <ImageChoser />
+      <ImagePicker />
+      <ModePicker />
       <DownloadButton canvasRef={canvasRef} bgRef={bgRef} />
     </div>
   );

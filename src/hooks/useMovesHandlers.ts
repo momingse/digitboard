@@ -1,12 +1,13 @@
 import { isMac } from "@/helper/platformHelper";
 import { socket } from "@/lib/socket";
 import { useRoomStore } from "@/store/room/room-use";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRefs } from "./useRefs";
 import { useSaveMovesStore } from "@/store/saveMoves/saveMoves-use";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCtx } from "./useCtx";
+import { useRefs } from "./useRefs";
+import { useSelection } from "./useSelection";
 
 export const useMovesHandlers = () => {
-  const { canvasRef, minimapRef } = useRefs();
   const {
     myMoves,
     movesWithoutUser,
@@ -15,14 +16,10 @@ export const useMovesHandlers = () => {
     removeMoveFromMyMoves,
   } = useRoomStore((state) => state);
   const { addMove, popMove } = useSaveMovesStore((state) => state);
+  const { canvasRef, minimapRef } = useRefs();
+  const ctx = useCtx();
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const prevMovesLength = useRef(0);
-
-  useEffect(() => {
-    const newCtx = canvasRef.current?.getContext("2d");
-    if (newCtx) setCtx(newCtx);
-  }, [canvasRef]);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const sortedMoves = useMemo(() => {
@@ -140,6 +137,8 @@ export const useMovesHandlers = () => {
 
     copyCanvasToSmall();
   }, [ctx, sortedMoves, drawMove]);
+
+  useSelection(drawAllMoves);
 
   useEffect(() => {
     socket.on("your_move", (move: Move) => {

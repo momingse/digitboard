@@ -12,12 +12,12 @@ import { useEffect, useState } from "react";
 import { useKeyPressEvent } from "react-use";
 import { Background } from "./Background";
 import MiniMap from "./Minimap";
+import { useCtx } from "@/hooks/useCtx";
 
 const Canvas = () => {
   const options = useOptionsStore((state) => state);
   const { canvasRef, bgRef, undoRef, redoRef } = useRefs();
 
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [dragging, setDragging] = useState(false);
   const [, setMovedMinimap] = useState(false);
 
@@ -25,6 +25,7 @@ const Canvas = () => {
   const { x, y } = useBoardPosition();
 
   const { handleUndo, handleRedo } = useMovesHandlers();
+  const ctx = useCtx();
 
   useKeyPressEvent("Control", (e) => {
     if (e.ctrlKey && !dragging) {
@@ -35,12 +36,9 @@ const Canvas = () => {
   const { handleDraw, handleEndDrawing, handleStartDrawing, drawing } =
     useDrawing(dragging);
 
-  useSocketDraw(ctx, drawing);
+  useSocketDraw(drawing);
 
   useEffect(() => {
-    const newCtx = canvasRef.current?.getContext("2d");
-    if (newCtx) setCtx(newCtx);
-
     const handleKeyUp = (e: KeyboardEvent) => {
       if (!e.ctrlKey && dragging) {
         setDragging(false);
@@ -61,6 +59,10 @@ const Canvas = () => {
       redoButton?.removeEventListener("click", handleRedo);
     };
   }, [dragging, undoRef, redoRef, handleUndo, handleRedo, canvasRef]);
+
+  useEffect(() => {
+    if (ctx) socket.emit("joined_room");
+  }, [ctx]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">

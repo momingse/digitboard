@@ -16,7 +16,8 @@ export const useOptionsStoreOptionsSelector = () => {
   return useOptionsStore((store) => ({
     lineWidth: store.lineWidth,
     lineColor: store.lineColor,
-    erase: store.erase,
+    mode: store.mode,
     shape: store.shape,
+    selection: store.selection,
   }));
 };

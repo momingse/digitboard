@@ -36,8 +36,8 @@ export const MoveImage = () => {
       options: {
         lineWidth: 1,
         lineColor: "#000",
-        erase: false,
         shape: "image",
+        mode: "draw",
       },
       timestamp: 0,
       eraser: false,

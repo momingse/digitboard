@@ -3,14 +3,14 @@ import { useOptionsStore } from "@/store/options/options-use";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import { BiRectangle } from "react-icons/bi";
-import { BsPencilFill } from "react-icons/bs";
+import { CgShapeZigzag } from "react-icons/cg";
 import { FaCircle } from "react-icons/fa";
 import { useClickAway } from "react-use";
 
 export const ShapeSelector = () => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const { shape, setShape, setErase } = useOptionsStore((state) => state);
+  const { shape, setShape, setMode } = useOptionsStore((state) => state);
 
   const [opened, setOpened] = useState(false);
 
@@ -20,14 +20,14 @@ export const ShapeSelector = () => {
 
   const handleShapeChange = (shape: Shape) => {
     setShape(shape);
-    setErase(false);
+    setMode("draw");
     setOpened(false);
   };
 
   const shapeToIconMap: Partial<Record<keyof typeof Shape, JSX.Element>> =
     useMemo(
       () => ({
-        line: <BsPencilFill />,
+        line: <CgShapeZigzag />,
         circle: <FaCircle />,
         rect: <BiRectangle />,
       }),
