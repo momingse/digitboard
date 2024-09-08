@@ -15,7 +15,7 @@ import MiniMap from "./Minimap";
 
 const Canvas = () => {
   const options = useOptionsStore((state) => state);
-  const { canvasRef, bgRef, undoRef } = useRefs();
+  const { canvasRef, bgRef, undoRef, redoRef } = useRefs();
 
   const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
   const [dragging, setDragging] = useState(false);
@@ -24,7 +24,7 @@ const Canvas = () => {
   const { width, height } = useViewportSize();
   const { x, y } = useBoardPosition();
 
-  const { handleUndo } = useMovesHandlers();
+  const { handleUndo, handleRedo } = useMovesHandlers();
 
   useKeyPressEvent("Control", (e) => {
     if (e.ctrlKey && !dragging) {
@@ -50,14 +50,17 @@ const Canvas = () => {
     window.addEventListener("keyup", handleKeyUp);
 
     const undoButton = undoRef.current;
+    const redoButton = redoRef.current;
 
     undoButton?.addEventListener("click", handleUndo);
+    redoButton?.addEventListener("click", handleRedo);
 
     return () => {
       window.removeEventListener("keyup", handleKeyUp);
       undoButton?.removeEventListener("click", handleUndo);
+      redoButton?.removeEventListener("click", handleRedo);
     };
-  }, [dragging, undoRef, handleUndo, canvasRef]);
+  }, [dragging, undoRef, redoRef, handleUndo, handleRedo, canvasRef]);
 
   return (
     <div className="relative h-full w-full overflow-hidden">

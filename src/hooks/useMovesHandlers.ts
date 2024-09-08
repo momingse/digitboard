@@ -213,6 +213,7 @@ export const useMovesHandlers = () => {
 
   return {
     handleUndo,
+    handleRedo,
     drawAllMoves,
     drawMove,
   };

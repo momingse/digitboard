@@ -1,7 +1,7 @@
 import { createStore } from "zustand";
 
 export type SaveMovesState = {
-  moves: Move[];
+  savedMoves: Move[];
 };
 
 export type SaveMovesActions = {
@@ -13,7 +13,7 @@ export type SaveMovesActions = {
 export type SaveMovesStore = SaveMovesState & SaveMovesActions;
 
 const defaultInitState: SaveMovesState = {
-  moves: [],
+  savedMoves: [],
 };
 
 export const createSaveMovesStore = (
@@ -24,19 +24,19 @@ export const createSaveMovesStore = (
 
     addMove: (move: Move) => {
       set((state) => ({
-        moves: [...state.moves, move],
+        savedMoves: [...state.savedMoves, move],
       }));
     },
 
     popMove: () => {
       let move: Move | undefined;
       set((state) => {
-        move = state.moves.pop();
-        return { moves: state.moves };
+        move = state.savedMoves.pop();
+        return { savedMoves: state.savedMoves };
       });
       return move;
     },
 
-    clearMoves: () => set(() => ({ moves: [] })),
+    clearMoves: () => set({ savedMoves: [] }),
   }));
 };

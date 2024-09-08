@@ -1,14 +1,14 @@
 import { useRefs } from "@/hooks/useRefs";
-import { FaUndo } from "react-icons/fa";
 import { ColorPicker } from "./ColorPicker";
 import { DownloadButton } from "./DownloadButton";
 import { Eraser } from "./Eraser";
+import { HistoryButton } from "./HistoryButton";
+import { ImageChoser } from "./ImageChoser";
 import { LineWidthPicker } from "./LineWidthPicker";
 import { ShapeSelector } from "./ShapeSelector";
-import { ImageChoser } from "./ImageChoser";
 
 export const ToolBar = () => {
-  const { canvasRef, bgRef, undoRef } = useRefs();
+  const { canvasRef, bgRef } = useRefs();
 
   return (
     <div
@@ -17,9 +17,7 @@ export const ToolBar = () => {
         transform: "translateY(-50%)",
       }}
     >
-      <button className="text-xl" ref={undoRef}>
-        <FaUndo />
-      </button>
+      <HistoryButton />
       <div className="h-px w-full bg-white" />
       <ColorPicker />
       <ShapeSelector />
