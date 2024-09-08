@@ -3,6 +3,7 @@ import { socket } from "@/lib/socket";
 import { useRoomStore } from "@/store/room/room-use";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRefs } from "./useRefs";
+import { useSaveMovesStore } from "@/store/saveMoves/saveMoves-use";
 
 export const useMovesHandlers = () => {
   const { canvasRef, minimapRef } = useRefs();
@@ -13,6 +14,7 @@ export const useMovesHandlers = () => {
     addMoveToMyMoves,
     removeMoveFromMyMoves,
   } = useRoomStore((state) => state);
+  const { addMove, popMove } = useSaveMovesStore((state) => state);
 
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const prevMovesLength = useRef(0);
@@ -176,28 +178,38 @@ export const useMovesHandlers = () => {
 
   const handleUndo = useCallback(() => {
     if (!ctx) return;
-    removeMoveFromMyMoves();
-
-    socket.emit("undo");
+    const move = removeMoveFromMyMoves();
+    if (move) {
+      addMove(move);
+      socket.emit("undo");
+    }
   }, [ctx, removeMoveFromMyMoves]);
 
+  const handleRedo = useCallback(() => {
+    if (!ctx) return;
+    const move = popMove();
+    if (move) {
+      socket.emit("draw", move);
+    }
+  }, [ctx, popMove, addMoveToMyMoves]);
+
   useEffect(() => {
-    const handleUndoKeyboard = (e: KeyboardEvent) => {
-      if (isMac()) {
-        if (e.key === "z" && e.metaKey) {
-          handleUndo();
-        }
-      } else if (e.key === "z" && e.ctrlKey) {
+    const handleUndoRedoKeyboard = (e: KeyboardEvent) => {
+      const trigger = isMac() ? e.metaKey : e.ctrlKey;
+      if (trigger && e.key === "z") {
+        e.preventDefault();
         handleUndo();
+      } else if (trigger && e.key === "y") {
+        e.preventDefault();
+        handleRedo();
       }
     };
-
-    document.addEventListener("keydown", handleUndoKeyboard);
+    document.addEventListener("keydown", handleUndoRedoKeyboard);
 
     return () => {
-      document.removeEventListener("keydown", handleUndoKeyboard);
+      document.removeEventListener("keydown", handleUndoRedoKeyboard);
     };
-  }, [handleUndo]);
+  }, [handleUndo, handleRedo]);
 
   return {
     handleUndo,

@@ -7,6 +7,7 @@ import { useUsersStore } from "@/store/users/users-use";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBoardPosition } from "./useBoardPosition";
 import { useRefs } from "./useRefs";
+import { useSaveMovesStore } from "@/store/saveMoves/saveMoves-use";
 
 const CIRCLE_INFO_DEFAULT: CircleInfo = Object.freeze({
   cX: 0,
@@ -19,6 +20,8 @@ export const useDrawing = (blocked: boolean = false) => {
   const { canvasRef } = useRefs();
   const options = useOptionsStoreOptionsSelector();
   const { users } = useUsersStore((state) => state);
+  const { clearMoves } = useSaveMovesStore((state) => state);
+
   const [drawing, setDrawing] = useState(false);
   const tempMoves = useRef<[number, number][]>([]);
   const tempCircle = useRef<CircleInfo>({ ...CIRCLE_INFO_DEFAULT });
@@ -110,6 +113,7 @@ export const useDrawing = (blocked: boolean = false) => {
     tempImageDate.current = undefined;
 
     socket.emit("draw", move);
+    clearMoves();
   };
 
   const handleDraw = (x: number, y: number, shift?: boolean) => {
@@ -129,7 +133,13 @@ export const useDrawing = (blocked: boolean = false) => {
         break;
       case "circle":
         drawAndSet();
-        tempCircle.current = drawCircle(ctx, tempMoves.current[0], nx, ny, shift);
+        tempCircle.current = drawCircle(
+          ctx,
+          tempMoves.current[0],
+          nx,
+          ny,
+          shift,
+        );
         break;
       case "rect":
         drawAndSet();

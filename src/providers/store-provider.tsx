@@ -3,6 +3,7 @@
 import { ModalStoreProvider } from "@/store/modal/modal-provider";
 import { OptionsStoreProvider } from "@/store/options/options-provider";
 import { RoomStoreProvider } from "@/store/room/room-provider";
+import { SaveMovesStoreProvider } from "@/store/saveMoves/saveMoves-provider";
 import { UsersStoreProvider } from "@/store/users/users-provider";
 
 interface StoreProviderProps {
@@ -14,7 +15,9 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
     <OptionsStoreProvider>
       <UsersStoreProvider>
         <RoomStoreProvider>
-          <ModalStoreProvider>{children}</ModalStoreProvider>
+          <ModalStoreProvider>
+            <SaveMovesStoreProvider>{children}</SaveMovesStoreProvider>
+          </ModalStoreProvider>
         </RoomStoreProvider>
       </UsersStoreProvider>
     </OptionsStoreProvider>

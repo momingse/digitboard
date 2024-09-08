@@ -21,7 +21,7 @@ export type RoomActions = {
   addMoveToUser: (userId: string, move: Move) => void;
   removeMoveFromUser: (userId: string) => void;
   addMoveToMyMoves: (move: Move) => void;
-  removeMoveFromMyMoves: () => void;
+  removeMoveFromMyMoves: () => Move | undefined;
 };
 
 export type RoomStore = RoomState & RoomActions;
@@ -84,9 +84,13 @@ export const createRoomStore = (initState: RoomState = defaultInitState) => {
       }),
     addMoveToMyMoves: (move: Move) =>
       set((state) => ({ myMoves: [...state.myMoves, move] })),
-    removeMoveFromMyMoves: () =>
-      set((state) => ({
-        myMoves: state.myMoves.slice(0, state.myMoves.length - 1),
-      })),
+    removeMoveFromMyMoves: () => {
+      let move: Move | undefined;
+      set((state) => {
+        move = state.myMoves.pop();
+        return { myMoves: state.myMoves };
+      });
+      return move;
+    },
   }));
 };
