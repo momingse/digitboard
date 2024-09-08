@@ -103,7 +103,7 @@ export const useMovesHandlers = () => {
       ctx.closePath();
       ctx.globalCompositeOperation = originalComposite;
     },
-    [ctx, copyCanvasToSmall],
+    [ctx],
   );
 
   const drawAllMoves = useCallback(async () => {
@@ -157,7 +157,10 @@ export const useMovesHandlers = () => {
       if (lastMove.options.shape === "image") {
         const img = new Image();
         img.src = lastMove.base64;
-        img.onload = () => drawMove(lastMove, img);
+        img.onload = () => {
+          drawMove(lastMove, img);
+          copyCanvasToSmall();
+        };
       } else {
         drawMove(lastMove);
       }
