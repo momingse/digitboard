@@ -78,16 +78,19 @@ export const useDrawing = (blocked: boolean = false) => {
     const nx = getPos(x, movedX);
     const ny = getPos(y, movedY);
 
-    ctx.beginPath();
-    ctx.moveTo(nx, ny);
-    ctx.stroke();
+    if (options.shape === "line") {
+      ctx.beginPath();
+      ctx.moveTo(nx, ny);
+      ctx.stroke();
+    }
 
     tempMoves.current = [];
     tempMoves.current.push([nx, ny]);
+    console.log("start drawing", tempMoves.current);
   };
 
   const handleEndDrawing = () => {
-    if (!ctx || blocked) return;
+    if (!ctx || blocked || !drawing) return;
 
     setDrawing(false);
     ctx.closePath();
@@ -122,17 +125,16 @@ export const useDrawing = (blocked: boolean = false) => {
     const nx = getPos(x, movedX);
     const ny = getPos(y, movedY);
 
+    drawAndSet();
     switch (options.shape) {
       case "line":
         if (shift) {
           tempMoves.current = tempMoves.current.slice(0, 1);
-          drawAndSet();
         }
         drawLine(ctx, tempMoves.current[0], nx, ny, shift);
         tempMoves.current.push([nx, ny]);
         break;
       case "circle":
-        drawAndSet();
         tempCircle.current = drawCircle(
           ctx,
           tempMoves.current[0],
@@ -142,8 +144,7 @@ export const useDrawing = (blocked: boolean = false) => {
         );
         break;
       case "rect":
-        drawAndSet();
-        tempSize.current = drawRect(ctx, tempMoves.current[0], nx, ny);
+        tempSize.current = drawRect(ctx, tempMoves.current[0], nx, ny, shift);
         break;
       default:
         break;
