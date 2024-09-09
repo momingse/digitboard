@@ -31,7 +31,7 @@ export const ModalManager = () => {
   return (
     <Portal>
       <motion.div
-        className="z-40 flex min-h-full w-full items-center justify-center bg-black/80"
+        className="absolute z-40 flex min-h-full w-full items-center justify-center bg-black/80"
         onClick={closeModal}
         variants={bgAnimation}
         initial="closed"

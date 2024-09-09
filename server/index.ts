@@ -8,6 +8,7 @@ const port = parseInt(process.env.PORT || "3000", 10);
 const dev = process.env.NODE_ENV !== "production";
 const nextApp = next({ dev });
 const nextHandler = nextApp.getRequestHandler();
+const MAX_ROOM_USERS = 12;
 
 nextApp.prepare().then(() => {
   const app = express();
@@ -86,7 +87,7 @@ nextApp.prepare().then(() => {
       console.log(`Request To join room: ${socket.id} => ${roomId}`);
 
       const room = rooms.get(roomId);
-      if (room) {
+      if (room && room.users.size < MAX_ROOM_USERS) {
         socket.join(roomId);
 
         userToRoom.set(socket.id, roomId);

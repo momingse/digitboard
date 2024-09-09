@@ -7,6 +7,8 @@ import { ImagePicker } from "./ImagePicker";
 import { LineWidthPicker } from "./LineWidthPicker";
 import { ModePicker } from "./ModePicker";
 import { ShapeSelector } from "./ShapeSelector";
+import { useModalStore } from "@/store/modal/modal-use";
+import { ShareButton } from "./ShareButton";
 
 export const ToolBar = () => {
   const { canvasRef, bgRef } = useRefs();
@@ -28,6 +30,7 @@ export const ToolBar = () => {
       <div className="h-px w-full bg-white" />
       <DownloadButton canvasRef={canvasRef} bgRef={bgRef} />
       <ExitButton />
+      <ShareButton />
     </div>
   );
 };
