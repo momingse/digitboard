@@ -7,7 +7,7 @@ export const ExitButton = () => {
   const handleExit = () => router.push("/");
 
   return (
-    <button className="text-xl" onClick={handleExit}>
+    <button className="text-2xl" onClick={handleExit}>
       <ImExit />
     </button>
   );

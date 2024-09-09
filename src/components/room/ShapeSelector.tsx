@@ -10,7 +10,7 @@ import { useClickAway } from "react-use";
 export const ShapeSelector = () => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const { shape, setShape, setMode } = useOptionsStore((state) => state);
+  const { shape, mode, setShape, setMode } = useOptionsStore((state) => state);
 
   const [opened, setOpened] = useState(false);
 
@@ -36,7 +36,11 @@ export const ShapeSelector = () => {
 
   return (
     <div className="relative flex items-center" ref={ref}>
-      <button className="text-xl" onClick={() => setOpened((prev) => !prev)}>
+      <button
+        className="text-2xl"
+        onClick={() => setOpened((prev) => !prev)}
+        disabled={mode === "select"}
+      >
         {Object.entries(shapeToIconMap).find(([key]) => key === shape)?.[1]}
       </button>
       <AnimatePresence>
@@ -51,7 +55,7 @@ export const ShapeSelector = () => {
             {Object.keys(shapeToIconMap).map((key) => (
               <button
                 key={key}
-                className="text-xl"
+                className="text-2xl"
                 onClick={() => handleShapeChange(key as Shape)}
               >
                 {shapeToIconMap[key as Shape]}

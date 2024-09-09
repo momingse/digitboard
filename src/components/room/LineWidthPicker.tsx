@@ -6,7 +6,7 @@ import { useClickAway } from "react-use";
 import { motion } from "framer-motion";
 
 export const LineWidthPicker = () => {
-  const { lineWidth, setLineWidth } = useOptionsStore((state) => state);
+  const { lineWidth, mode, setLineWidth } = useOptionsStore((state) => state);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -21,6 +21,7 @@ export const LineWidthPicker = () => {
       <button
         className="h-6 w-6 rounded-full border-2 border-white transition-all hover:scale-125 active:scale-100"
         onClick={() => setOpened((prev) => !prev)}
+        disabled={mode === "select"}
       >
         <BsBorderWidth />
       </button>

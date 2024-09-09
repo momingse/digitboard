@@ -8,9 +8,8 @@ import { BsPaletteFill } from "react-icons/bs";
 import { useClickAway } from "react-use";
 
 export const ColorPicker = () => {
-  const { lineColor, fillColor, setLineColor, setFillColor } = useOptionsStore(
-    (state) => state,
-  );
+  const { lineColor, fillColor, mode, setLineColor, setFillColor } =
+    useOptionsStore((state) => state);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -22,7 +21,11 @@ export const ColorPicker = () => {
 
   return (
     <div className="relative flex items-center" ref={ref}>
-      <button className="" onClick={() => setOpened((prev) => !prev)}>
+      <button
+        className=""
+        onClick={() => setOpened((prev) => !prev)}
+        disabled={mode !== "draw"}
+      >
         <BsPaletteFill />
       </button>
       <AnimatePresence>

@@ -30,7 +30,7 @@ export const DownloadButton: FC<DownloadButtonProps> = ({
   };
 
   return (
-    <button onClick={handleDownload}>
+    <button className="text-2xl" onClick={handleDownload}>
       <HiOutlineDownload />
     </button>
   );
