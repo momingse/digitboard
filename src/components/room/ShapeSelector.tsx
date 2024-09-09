@@ -3,8 +3,8 @@ import { useOptionsStore } from "@/store/options/options-use";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import { BiRectangle } from "react-icons/bi";
+import { BsCircle } from "react-icons/bs";
 import { CgShapeZigzag } from "react-icons/cg";
-import { FaCircle } from "react-icons/fa";
 import { useClickAway } from "react-use";
 
 export const ShapeSelector = () => {
@@ -28,7 +28,7 @@ export const ShapeSelector = () => {
     useMemo(
       () => ({
         line: <CgShapeZigzag />,
-        circle: <FaCircle />,
+        circle: <BsCircle />,
         rect: <BiRectangle />,
       }),
       [],
