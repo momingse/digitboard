@@ -11,16 +11,10 @@ import { useCallback, useRef, useState } from "react";
 import { useBoardPosition } from "./useBoardPosition";
 import { useCtx } from "./useCtx";
 import { useRefs } from "./useRefs";
-
-const CIRCLE_INFO_DEFAULT: CircleInfo = Object.freeze({
-  cX: 0,
-  cY: 0,
-  radiusX: 0,
-  radiusY: 0,
-});
+import { getStringFromRgba } from "@/lib/rgba";
+import { DEFAULT_MOVE } from "@/constants/defaultMove";
 
 export const useDrawing = (blocked: boolean = false) => {
-  const { canvasRef } = useRefs();
   const options = useOptionsStoreOptionsSelector();
   const { users } = useUsersStore((state) => state);
   const { clearMoves } = useSaveMovesStore((state) => state);
@@ -28,10 +22,9 @@ export const useDrawing = (blocked: boolean = false) => {
 
   const [drawing, setDrawing] = useState(false);
   const tempMoves = useRef<[number, number][]>([]);
-  const tempCircle = useRef<CircleInfo>({ ...CIRCLE_INFO_DEFAULT });
+  const tempCircle = useRef<CircleInfo>({ ...DEFAULT_MOVE.circle });
   const tempSize = useRef<{ width: number; height: number }>({
-    width: 0,
-    height: 0,
+    ...DEFAULT_MOVE.rect,
   });
   const tempImageDate = useRef<ImageData | undefined>(undefined);
 
@@ -42,17 +35,16 @@ export const useDrawing = (blocked: boolean = false) => {
   const setUpCtxOption = useCallback(
     (ctx: CanvasRenderingContext2D | undefined) => {
       if (!ctx) return;
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
       ctx.lineWidth = options.lineWidth;
-      ctx.strokeStyle = options.lineColor;
+      ctx.strokeStyle = getStringFromRgba(options.lineColor);
+      ctx.fillStyle = getStringFromRgba(options.fillColor);
       ctx.globalCompositeOperation =
         options.mode === "erase" ? "destination-out" : "source-over";
     },
     [options],
   );
 
-  const drawAndSet = () => {
+  const drawAndSet = useCallback(() => {
     if (!tempImageDate.current) {
       tempImageDate.current = ctx?.getImageData(
         0,
@@ -63,13 +55,14 @@ export const useDrawing = (blocked: boolean = false) => {
     }
 
     ctx?.putImageData(tempImageDate.current as ImageData, 0, 0);
-  };
+  }, [ctx]);
 
   const handleStartDrawing = (x: number, y: number) => {
     if (!ctx || blocked) return;
 
     setDrawing(true);
     setUpCtxOption(ctx);
+    drawAndSet();
 
     const nx = getPos(x, movedX);
     const ny = getPos(y, movedY);
@@ -90,8 +83,8 @@ export const useDrawing = (blocked: boolean = false) => {
     setDrawing(false);
     ctx.closePath();
 
-    if (options.mode === "select") {
-      drawAndSet();
+    if (options.mode === "select" && tempMoves.current.length) {
+      clearOnYourMove();
 
       const x = tempMoves.current[0][0];
       const y = tempMoves.current[0][1];
@@ -104,24 +97,20 @@ export const useDrawing = (blocked: boolean = false) => {
     }
 
     const move: Move = {
+      ...DEFAULT_MOVE,
       rect: {
         ...tempSize.current,
       },
       circle: {
         ...tempCircle.current,
       },
-      img: { base64: "" },
       path: tempMoves.current,
       options,
-      timestamp: 0,
-      eraser: options.mode === "erase",
-      id: "",
     };
 
     tempMoves.current = [];
-    tempCircle.current = { ...CIRCLE_INFO_DEFAULT };
+    tempCircle.current = { ...DEFAULT_MOVE.circle };
     tempSize.current = { width: 0, height: 0 };
-    tempImageDate.current = undefined;
 
     if (options.mode === "select") return;
     socket.emit("draw", move);
@@ -141,6 +130,8 @@ export const useDrawing = (blocked: boolean = false) => {
 
       drawRect(ctx, tempMoves.current[0], nx, ny, false, true);
       tempMoves.current.push([nx, ny]);
+
+      setUpCtxOption(ctx);
 
       return;
     }
@@ -170,10 +161,16 @@ export const useDrawing = (blocked: boolean = false) => {
     }
   };
 
+  const clearOnYourMove = useCallback(() => {
+    drawAndSet();
+    tempImageDate.current = undefined;
+  }, [drawAndSet]);
+
   return {
     handleStartDrawing,
     handleEndDrawing,
     handleDraw,
     drawing,
+    clearOnYourMove,
   };
 };

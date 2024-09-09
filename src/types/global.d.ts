@@ -10,7 +10,8 @@ export declare global {
 
   interface CtxOptions {
     lineWidth: number;
-    lineColor: string;
+    lineColor: RgbaColor;
+    fillColor: RgbaColor;
     shape: keyof typeof Shape;
     mode: CtxMode;
     selection: {
@@ -44,7 +45,6 @@ export declare global {
     path: [number, number][];
     options: CtxOptions;
     timestamp: number;
-    eraser: boolean;
     id: string;
   }
 

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { useStore } from "zustand";
 import { OptionsStoreContext } from "./options-provider";
-import { OptionsStore } from "./options-store";
+import { OptionsState, OptionsStore } from "./options-store";
 
 export const useOptionsStore = <T>(selector: (store: OptionsStore) => T) => {
   const store = useContext(OptionsStoreContext);
@@ -12,10 +12,11 @@ export const useOptionsStore = <T>(selector: (store: OptionsStore) => T) => {
   return useStore(store, selector);
 };
 
-export const useOptionsStoreOptionsSelector = () => {
+export const useOptionsStoreOptionsSelector  = (): OptionsState => {
   return useOptionsStore((store) => ({
     lineWidth: store.lineWidth,
     lineColor: store.lineColor,
+    fillColor: store.fillColor,
     mode: store.mode,
     shape: store.shape,
     selection: store.selection,

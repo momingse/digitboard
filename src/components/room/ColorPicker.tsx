@@ -1,9 +1,9 @@
 import { ColorPickerAnimation } from "@/animation/ColorPicker.animation";
+import { getStringFromRgba } from "@/lib/rgba";
 import { useOptionsStore } from "@/store/options/options-use";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
-import { HexColorPicker } from "react-colorful";
-import { BsPaletteFill } from "react-icons/bs";
+import { RgbaColorPicker } from "react-colorful";
 import { useClickAway } from "react-use";
 
 export const ColorPicker = () => {
@@ -21,10 +21,9 @@ export const ColorPicker = () => {
     <div className="relative flex items-center" ref={ref}>
       <button
         className="h-6 w-6 rounded-full border-2 border-white transition-all hover:scale-125 active:scale-100"
-        style={{ backgroundColor: lineColor }}
+        style={{ backgroundColor: getStringFromRgba(lineColor) }}
         onClick={() => setOpened((prev) => !prev)}
-      >
-      </button>
+      ></button>
       <AnimatePresence>
         {opened && (
           <motion.div
@@ -34,9 +33,9 @@ export const ColorPicker = () => {
             animate="to"
             exit="from"
           >
-            <HexColorPicker
+            <RgbaColorPicker
               color={lineColor}
-              onChange={(color) => setLineColor(color)}
+              onChange={(color) => setLineColor({ ...color })}
             />
           </motion.div>
         )}

@@ -1,41 +1,54 @@
 import { isMac } from "@/helper/platformHelper";
-import { useOptionsStore } from "@/store/options/options-use";
+import {
+  useOptionsStore,
+  useOptionsStoreOptionsSelector,
+} from "@/store/options/options-use";
 import { useEffect } from "react";
 import { useCtx } from "./useCtx";
+import { useRefs } from "./useRefs";
+import { socket } from "@/lib/socket";
+import { DEFAULT_MOVE } from "@/constants/defaultMove";
 
-export const useSelection = (drawAllMoves: () => void) => {
+export const useSelection = (drawAllMoves: () => Promise<void>) => {
   const ctx = useCtx();
+  const { bgRef } = useRefs();
 
-  const { selection, setSelection } = useOptionsStore((state) => state);
+  const { setSelection } = useOptionsStore((state) => state);
+  const options = useOptionsStoreOptionsSelector();
 
   useEffect(() => {
-    drawAllMoves();
+    const callback = async () => {
+      await drawAllMoves();
 
-    if (!ctx || !selection) return;
+      if (!ctx || !options.selection) return;
 
-    const { x, y, width, height } = selection;
+      const { x, y, width, height } = options.selection;
 
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 10]);
-    ctx.globalCompositeOperation = "source-over";
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#000";
+      ctx.setLineDash([5, 10]);
+      ctx.globalCompositeOperation = "source-over";
 
-    ctx.beginPath();
-    ctx.rect(x - 2, y - 2, width + 4, height + 4);
-    ctx.stroke();
-    ctx.closePath();
+      ctx.beginPath();
+      ctx.rect(x, y, width, height);
+      ctx.stroke();
+      ctx.closePath();
 
-    ctx.setLineDash([]);
-  }, [selection, ctx, drawAllMoves]);
+      ctx.setLineDash([]);
+    };
 
+    callback();
+  }, [options.selection, ctx, drawAllMoves]);
+
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const handleCopySelection = (e: KeyboardEvent) => {
-      if (!selection || !ctx) return;
+      if (!options.selection || !ctx) return;
 
       const trigger = isMac() ? e.metaKey : e.ctrlKey;
+      const { x, y, width, height } = options.selection;
       if (trigger && e.key === "c") {
         e.preventDefault();
-        const { x, y, width, height } = selection;
-
         const imageData = ctx?.getImageData(x, y, width, height);
 
         if (imageData) {
@@ -55,6 +68,30 @@ export const useSelection = (drawAllMoves: () => void) => {
 
         setSelection(null);
       }
+
+      const deleteKey = isMac()
+        ? e.key === "Backspace" && trigger
+        : e.key === "Delete";
+
+      if (deleteKey) {
+        const move: Move = {
+          ...DEFAULT_MOVE,
+          rect: {
+            width,
+            height,
+          },
+          path: [[x, y]],
+          options: {
+            ...options,
+            shape: "rect",
+            mode: "erase",
+            fillColor: { r: 0, g: 0, b: 0, a: 0 },
+          },
+        };
+
+        socket.emit("draw", move);
+        setSelection(null);
+      }
     };
 
     document.addEventListener("keydown", handleCopySelection);
@@ -62,5 +99,5 @@ export const useSelection = (drawAllMoves: () => void) => {
     return () => {
       document.removeEventListener("keydown", handleCopySelection);
     };
-  }, [selection, ctx]);
+  }, [JSON.stringify(options), ctx, setSelection, bgRef]);
 };

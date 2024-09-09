@@ -6,8 +6,9 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useCtx } from "./useCtx";
 import { useRefs } from "./useRefs";
 import { useSelection } from "./useSelection";
+import { getStringFromRgba } from "@/lib/rgba";
 
-export const useMovesHandlers = () => {
+export const useMovesHandlers = (clearOnYourMove: () => void) => {
   const {
     myMoves,
     movesWithoutUser,
@@ -72,9 +73,11 @@ export const useMovesHandlers = () => {
       }
 
       ctx.lineWidth = moveOption.lineWidth;
-      ctx.strokeStyle = moveOption.lineColor;
+      ctx.strokeStyle = getStringFromRgba(moveOption.lineColor);
+      ctx.fillStyle = getStringFromRgba(moveOption.fillColor);
       const originalComposite = ctx.globalCompositeOperation;
-      if (move.eraser) ctx.globalCompositeOperation = "destination-out";
+      if (move.options.mode === "erase")
+        ctx.globalCompositeOperation = "destination-out";
       else ctx.globalCompositeOperation = "source-over";
 
       ctx.beginPath();
@@ -92,12 +95,14 @@ export const useMovesHandlers = () => {
         case "circle":
           const { cX, cY, radiusX, radiusY } = move.circle;
           ctx.ellipse(cX, cY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+          ctx.fill();
           ctx.stroke();
           break;
         case "rect":
           const { width, height } = move.rect;
           ctx.rect(path[0][0], path[0][1], width, height);
           ctx.stroke();
+          ctx.fill();
           break;
         default:
           break;
@@ -142,13 +147,14 @@ export const useMovesHandlers = () => {
 
   useEffect(() => {
     socket.on("your_move", (move: Move) => {
+      clearOnYourMove();
       addMoveToMyMoves(move);
     });
 
     return () => {
       socket.off("your_move");
     };
-  }, [addMoveToMyMoves]);
+  }, [addMoveToMyMoves, clearOnYourMove]);
 
   useEffect(() => {
     if (
