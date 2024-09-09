@@ -24,26 +24,28 @@ export const ColorPicker = () => {
       <button
         className=""
         onClick={() => setOpened((prev) => !prev)}
-        disabled={mode !== "draw"}
+        disabled={mode === "select"}
       >
         <BsPaletteFill />
       </button>
       <AnimatePresence>
         {opened && (
           <motion.div
-            className="absolute left-14 mt-24"
+            className="absolute left-10 sm:left-14 mt-24"
             variants={ColorPickerAnimation}
             initial="from"
             animate="to"
             exit="from"
           >
-            <h2 className="font-semibold text-black">Line Color</h2>
+            <h2 className="font-semibold text-black dark:text-white">
+              Line Color
+            </h2>
             <RgbaColorPicker
               color={lineColor}
               onChange={(color) => setLineColor({ ...color })}
               className="mb-5"
             />
-            <h2 className="font-semibold text-black">Fill Color</h2>
+            <h2 className="font-semibold text-black dark:text-white">Fill Color</h2>
             <RgbaColorPicker
               color={lineColor}
               onChange={(color) => setFillColor({ ...color })}

@@ -8,7 +8,7 @@ export const UserList = () => {
       {[...users.entries()].map(([userId, user], index) => (
         <div
           key={userId}
-          className="flex h-12 w-12 select-none items-center justify-center rounded-full text-white"
+          className="flex h-5 w-5 text-xs md:h-8 md:w-8 md:text-base lg:h-12 lg:w-12 select-none items-center justify-center rounded-full text-white"
           style={{
             backgroundColor: user.color,
             marginLeft: index !== 0 ? "-0.5rem" : 0,

@@ -49,7 +49,7 @@ export const Chat = () => {
 
   return (
     <motion.div
-      className="absolute z-50 bottom-0 left-36 flex h-[300px] w-[30rem] flex-col overflow-hidden rounded-t-md border"
+      className="absolute z-50 bottom-0 w-full sm:left-36 flex h-[300px] sm:w-[30rem] flex-col overflow-hidden rounded-t-md"
       animate={{ y: opened ? 0 : 260 }}
       transition={{ ease: DEFAULT_EASING, duration: 0.2 }}
     >

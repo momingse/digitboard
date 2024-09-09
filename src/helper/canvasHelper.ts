@@ -27,9 +27,12 @@ const getWidthAndHeight = (
   return { width, height };
 };
 
-export const drawBackground = (ctx: CanvasRenderingContext2D) => {
+export const drawBackground = (
+  ctx: CanvasRenderingContext2D,
+  mode: "dark" | "light",
+) => {
   ctx.lineWidth = 1;
-  ctx.strokeStyle = "#ccc";
+  ctx.strokeStyle = mode === "dark" ? "#444" : "#ccc";
 
   for (let i = 0; i < ctx.canvas.width; i += 25) {
     ctx.beginPath();

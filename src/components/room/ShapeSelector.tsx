@@ -46,7 +46,7 @@ export const ShapeSelector = () => {
       <AnimatePresence>
         {opened && (
           <motion.div
-            className="absolute left-14 flex gap-1 rouneded-lg bg-zinc-900 p-2"
+            className="absolute left-14 z-10 border md:border-0 flex gap-1 rouneded-lg bg-zinc-900 p-2"
             variants={ColorPickerAnimation}
             initial="from"
             animate="to"

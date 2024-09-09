@@ -1,10 +1,13 @@
 import { socket } from "@/lib/socket";
+import { useModalStore } from "@/store/modal/modal-use";
 import { useRoomStore } from "@/store/room/room-use";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
+import { NotFoundModal } from "../home/NotFoundModal.tsx";
 
 export const NameInput = () => {
   const setRoomId = useRoomStore((state) => state.setRoomId);
+  const { openModal } = useModalStore((state) => state);
 
   const [username, setUsername] = useState("");
 
@@ -39,6 +42,7 @@ export const NameInput = () => {
         setRoomId(roomIdFromServer);
       } else {
         router.push("/");
+        openModal(<NotFoundModal id={roomIdFromServer} />);
       }
     };
 
@@ -47,7 +51,7 @@ export const NameInput = () => {
     return () => {
       socket.off("joined", handleJoined);
     };
-  }, [router, setRoomId]);
+  }, [router, setRoomId, openModal]);
 
   const handleJoinRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

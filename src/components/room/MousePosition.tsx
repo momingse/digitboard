@@ -24,7 +24,7 @@ const MousePosition = () => {
   return (
     <motion.div
       ref={ref}
-      className="absolute top-0 left-0 z-50 pointer-events-none"
+      className="absolute top-0 left-0 z-50 pointer-events-none select-none transition-colors dark:text-white"
       animate={{
         x: docX + 15,
         y: docY + 15,

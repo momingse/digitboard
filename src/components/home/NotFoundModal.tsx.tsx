@@ -15,8 +15,8 @@ export const NotFoundModal: FC<NotFoundModalProps> = ({ id }) => {
       <button onClick={closeModal} className="absolute top-5 right-5">
         <AiOutlineClose />
       </button>
-      <h2 className="text-lg font-bold">Room with id: {id} not found!</h2>
-      <h3>Please check the id and try again.</h3>
+      <h2 className="text-lg font-bold">Room with id: {id} not found or full!</h2>
+      <h3>Please check the id and try again later.</h3>
     </div>
   );
 };

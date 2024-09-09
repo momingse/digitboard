@@ -1,5 +1,6 @@
 "use client";
 
+import { BackgroundStoreProvider } from "@/store/background/background-provider";
 import { ModalStoreProvider } from "@/store/modal/modal-provider";
 import { OptionsStoreProvider } from "@/store/options/options-provider";
 import { RoomStoreProvider } from "@/store/room/room-provider";
@@ -16,7 +17,9 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
       <UsersStoreProvider>
         <RoomStoreProvider>
           <ModalStoreProvider>
-            <SaveMovesStoreProvider>{children}</SaveMovesStoreProvider>
+            <SaveMovesStoreProvider>
+              <BackgroundStoreProvider>{children}</BackgroundStoreProvider>
+            </SaveMovesStoreProvider>
           </ModalStoreProvider>
         </RoomStoreProvider>
       </UsersStoreProvider>
