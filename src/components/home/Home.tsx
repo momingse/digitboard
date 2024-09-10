@@ -48,7 +48,7 @@ export const Home = () => {
 
   const handleJoinRoom = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    socket.emit("join_room", roomId, username);
+    if (roomId) socket.emit("join_room", roomId, username);
   };
 
   return (
@@ -67,7 +67,7 @@ export const Home = () => {
           id="username"
           placeholder="Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value.slice(0, 15))}
         ></input>
       </div>
       <form

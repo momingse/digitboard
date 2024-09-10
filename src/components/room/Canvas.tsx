@@ -1,5 +1,6 @@
 import { CANVAS_SIZE } from "@/constants/canvasSize";
 import { useBoardPosition } from "@/hooks/useBoardPosition";
+import { useCtx } from "@/hooks/useCtx";
 import { useDrawing } from "@/hooks/useDrawing";
 import { useMovesHandlers } from "@/hooks/useMovesHandlers";
 import { useRefs } from "@/hooks/useRefs";
@@ -9,16 +10,16 @@ import { socket } from "@/lib/socket";
 import { useOptionsStore } from "@/store/options/options-use";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { BsArrowsMove } from "react-icons/bs";
 import { useKeyPressEvent } from "react-use";
 import { Background } from "./Background";
 import MiniMap from "./Minimap";
-import { useCtx } from "@/hooks/useCtx";
 
 const Canvas = () => {
   const options = useOptionsStore((state) => state);
   const { canvasRef, bgRef, undoRef, redoRef } = useRefs();
 
-  const [dragging, setDragging] = useState(false);
+  const [dragging, setDragging] = useState(true);
   const [, setMovedMinimap] = useState(false);
 
   const { width, height } = useViewportSize();
@@ -44,13 +45,16 @@ const Canvas = () => {
   useSocketDraw(drawing);
 
   useEffect(() => {
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (!e.ctrlKey && dragging) {
-        setDragging(false);
-      }
+    setDragging(false);
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      setDragging(e.ctrlKey);
     };
 
-    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("keydown", handleKey);
+    window.addEventListener("keyup", handleKey);
 
     const undoButton = undoRef.current;
     const redoButton = redoRef.current;
@@ -59,7 +63,8 @@ const Canvas = () => {
     redoButton?.addEventListener("click", handleRedo);
 
     return () => {
-      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("keydown", handleKey);
+      window.removeEventListener("keyup", handleKey);
       undoButton?.removeEventListener("click", handleUndo);
       redoButton?.removeEventListener("click", handleRedo);
     };
@@ -103,7 +108,15 @@ const Canvas = () => {
         }}
       />
       <Background bgRef={bgRef} />
-      <MiniMap dragging={dragging} setMovedMinimap={setMovedMinimap} />
+      <MiniMap dragging={dragging} />
+      <button
+        className={`absolute bottom-14 right-5 z-10 rounded-xl md:botton-5 ${
+          dragging ? "bg-green-500" : "bg-zinc-300 text-black"
+        } p-3 text-lg text-white`}
+        onClick={() => setDragging((prev) => !prev)}
+      >
+        <BsArrowsMove />
+      </button>
     </div>
   );
 };

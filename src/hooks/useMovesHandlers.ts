@@ -7,6 +7,7 @@ import { useCtx } from "./useCtx";
 import { useRefs } from "./useRefs";
 import { useSelection } from "./useSelection";
 import { getStringFromRgba } from "@/lib/rgba";
+import { useOptionsStore } from "@/store/options/options-use";
 
 export const useMovesHandlers = (clearOnYourMove: () => void) => {
   const {
@@ -19,6 +20,7 @@ export const useMovesHandlers = (clearOnYourMove: () => void) => {
   const { addMove, popMove } = useSaveMovesStore((state) => state);
   const { canvasRef, minimapRef } = useRefs();
   const ctx = useCtx();
+  const { setSelection } = useOptionsStore((state) => state);
 
   const prevMovesLength = useRef(0);
 
@@ -63,10 +65,7 @@ export const useMovesHandlers = (clearOnYourMove: () => void) => {
       }
 
       const moveOption = move.options;
-      if (moveOption.shape === "image" && image) {
-        ctx?.drawImage(image, path[0][0], path[0][1]);
-        return;
-      }
+      if (moveOption.mode == "select") return;
 
       if (!ctx) {
         return;
@@ -79,6 +78,11 @@ export const useMovesHandlers = (clearOnYourMove: () => void) => {
       if (move.options.mode === "erase")
         ctx.globalCompositeOperation = "destination-out";
       else ctx.globalCompositeOperation = "source-over";
+
+      if (moveOption.shape === "image" && image) {
+        ctx?.drawImage(image, path[0][0], path[0][1]);
+        return;
+      }
 
       ctx.beginPath();
       switch (move.options.shape) {
@@ -149,12 +153,15 @@ export const useMovesHandlers = (clearOnYourMove: () => void) => {
     socket.on("your_move", (move: Move) => {
       clearOnYourMove();
       addMoveToMyMoves(move);
+      setTimeout(() => {
+        setSelection(null);
+      }, 100);
     });
 
     return () => {
       socket.off("your_move");
     };
-  }, [addMoveToMyMoves, clearOnYourMove]);
+  }, [addMoveToMyMoves, clearOnYourMove, setSelection]);
 
   useEffect(() => {
     if (
@@ -184,7 +191,8 @@ export const useMovesHandlers = (clearOnYourMove: () => void) => {
   const handleUndo = useCallback(() => {
     if (!ctx) return;
     const move = removeMoveFromMyMoves();
-    if (move) {
+    if (move?.options.mode === "select") setSelection(null);
+    else if (move) {
       addMove(move);
       socket.emit("undo");
     }

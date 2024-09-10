@@ -40,7 +40,7 @@ export const ShareModel = () => {
           type="text"
           value={url}
           readOnly
-          className="rounded-xl border p-5 py-1 w-96"
+          className="rounded-xl border p-5 py-1 sm:w-96"
         />
         <button className="absolute right-0 h-full" onClick={handleCopy}>
           Copy

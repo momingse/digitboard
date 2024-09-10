@@ -41,7 +41,7 @@ export const BackgroundModal = () => {
         <AiOutlineClose />
       </button>
       <h2 className="mb-4 text-2xl font-bold">Choose background</h2>
-      <div className="grid grid-cols-2 grid-rows-2 gap-5">
+      <div className="grid sm:grid-cols-2 gap-5">
         {setting.map((s, i) => (
           <canvas
             key={i}

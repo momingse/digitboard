@@ -5,16 +5,24 @@ import { useRefs } from "@/hooks/useRefs";
 import { getPos } from "@/lib/getPos";
 import { socket } from "@/lib/socket";
 import { motion, useMotionValue } from "framer-motion";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
+import { AiOutlineCheck, AiOutlineClose } from "react-icons/ai";
 
 export const MoveImage = () => {
   const { canvasRef } = useRefs();
   const { x, y } = useBoardPosition();
 
-  const imageX = useMotionValue(50);
-  const imageY = useMotionValue(50);
-
   const { moveImage, setMoveImage } = useMoveImage();
+
+  const imageX = useMotionValue(moveImage.x || 50);
+  const imageY = useMotionValue(moveImage.y || 50);
+
+  useEffect(() => {
+    if (moveImage.x) imageX.set(moveImage.x);
+    else imageX.set(50);
+    if (moveImage.y) imageY.set(moveImage.y);
+    else imageY.set(50);
+  }, [moveImage.x, moveImage.y, imageX, imageY]);
 
   const handlePlaceImage = useCallback(() => {
     const [finalX, finalY] = [getPos(imageX.get(), x), getPos(imageY.get(), y)];
@@ -22,7 +30,7 @@ export const MoveImage = () => {
     const move: Move = {
       ...DEFAULT_MOVE,
       img: {
-        base64: moveImage,
+        base64: moveImage.base64,
       },
       path: [[finalX, finalY]],
       options: {
@@ -34,12 +42,12 @@ export const MoveImage = () => {
 
     socket.emit("draw", move);
 
-    setMoveImage("");
+    setMoveImage({ base64: "" });
     imageX.set(50);
     imageY.set(50);
   }, [imageX, imageY, moveImage, setMoveImage, x, y]);
 
-  if (!moveImage) return null;
+  if (!moveImage.base64) return null;
 
   return (
     <motion.div
@@ -50,16 +58,24 @@ export const MoveImage = () => {
       className="absolute top-0 z-20 cursor-grab"
       style={{ x: imageX, y: imageY }}
     >
-      <button
-        className="w-full text-center text-black"
-        onClick={handlePlaceImage}
-      >
-        Accept
-      </button>
+      <div className="absolute bottom-full mb-2 flex gap-3">
+        <button
+          className="rounded-full bg-gray-200 p-2"
+          onClick={handlePlaceImage}
+        >
+          <AiOutlineCheck />
+        </button>
+        <button
+          className="rounded-full bg-gray-200 p-2"
+          onClick={() => setMoveImage({ base64: "" })}
+        >
+          <AiOutlineClose />
+        </button>
+      </div>
       <img
         className="pointer-events-none"
         alt="image to move"
-        src={moveImage}
+        src={moveImage.base64}
       />
     </motion.div>
   );

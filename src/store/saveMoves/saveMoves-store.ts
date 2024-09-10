@@ -23,9 +23,13 @@ export const createSaveMovesStore = (
     ...initState,
 
     addMove: (move: Move) => {
-      set((state) => ({
-        savedMoves: [...state.savedMoves, move],
-      }));
+      set((state) => {
+        if (move.options.mode === "select")
+          return { savedMoves: state.savedMoves };
+        return {
+          savedMoves: [...state.savedMoves, move],
+        };
+      });
     },
 
     popMove: () => {

@@ -83,7 +83,19 @@ export const createRoomStore = (initState: RoomState = defaultInitState) => {
         return { usersMoves: state.usersMoves };
       }),
     addMoveToMyMoves: (move: Move) =>
-      set((state) => ({ myMoves: [...state.myMoves, move] })),
+      set((state) => {
+        if (
+          state.myMoves[state.myMoves.length - 1]?.options.mode === "select"
+        ) {
+          return {
+            myMoves: [
+              ...state.myMoves.slice(0, state.myMoves.length - 1),
+              move,
+            ],
+          };
+        }
+        return { myMoves: [...state.myMoves, move] };
+      }),
     removeMoveFromMyMoves: () => {
       let move: Move | undefined;
       set((state) => {

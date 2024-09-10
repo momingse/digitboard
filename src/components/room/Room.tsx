@@ -8,6 +8,7 @@ import { MoveImage } from "./MoveImage";
 import { NameInput } from "./NameInput";
 import { ToolBar } from "./ToolBar";
 import { UserList } from "./UserList";
+import { SelectionButtons } from "./SelectionButtions";
 
 const Room = () => {
   const roomId = useRoomStore((state) => state.id);
@@ -19,6 +20,7 @@ const Room = () => {
       <div className="relative h-full w-full overflow-hidden">
         <UserList />
         <ToolBar />
+        <SelectionButtons />
         <MoveImage />
         <Canvas />
         <MousePosition />

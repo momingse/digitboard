@@ -13,12 +13,14 @@ import { useCtx } from "./useCtx";
 import { useRefs } from "./useRefs";
 import { getStringFromRgba } from "@/lib/rgba";
 import { DEFAULT_MOVE } from "@/constants/defaultMove";
+import { useRoomStore } from "@/store/room/room-use";
 
 export const useDrawing = (blocked: boolean = false) => {
   const options = useOptionsStoreOptionsSelector();
   const { users } = useUsersStore((state) => state);
   const { clearMoves } = useSaveMovesStore((state) => state);
   const { selection, setSelection } = useOptionsStore((state) => state);
+  const { addMoveToMyMoves } = useRoomStore((state) => state);
 
   const [drawing, setDrawing] = useState(false);
   const tempMoves = useRef<[number, number][]>([]);
@@ -83,17 +85,37 @@ export const useDrawing = (blocked: boolean = false) => {
     setDrawing(false);
     ctx.closePath();
 
+    let addMove = true;
     if (options.mode === "select" && tempMoves.current.length) {
       clearOnYourMove();
 
-      const x = tempMoves.current[0][0];
-      const y = tempMoves.current[0][1];
-      const width = tempMoves.current[tempMoves.current.length - 1][0] - x;
-      const height = tempMoves.current[tempMoves.current.length - 1][1] - y;
+      let x = tempMoves.current[0][0];
+      let y = tempMoves.current[0][1];
+      let width = tempMoves.current[tempMoves.current.length - 1][0] - x;
+      let height = tempMoves.current[tempMoves.current.length - 1][1] - y;
 
-      if (width < 0 || height < 0) return;
+      if (width < 0) {
+        width -= 4;
+        x += 4;
+      } else {
+        width += 4;
+        x -= 2;
+      }
 
-      setSelection({ x, y, width, height });
+      if (height < 0) {
+        height -= 4;
+        y += 4;
+      } else {
+        height += 4;
+        y -= 2;
+      }
+
+      if ((width < 4 || width > 4) && (height > 4 || height < 4)) {
+        setSelection({ x, y, width, height });
+      } else {
+        setSelection(null);
+        addMove = false;
+      }
     }
 
     const move: Move = {
@@ -112,9 +134,12 @@ export const useDrawing = (blocked: boolean = false) => {
     tempCircle.current = { ...DEFAULT_MOVE.circle };
     tempSize.current = { width: 0, height: 0 };
 
-    if (options.mode === "select") return;
-    socket.emit("draw", move);
-    clearMoves();
+    if (options.mode === "select") {
+      addMoveToMyMoves(move);
+    } else if (addMove) {
+      socket.emit("draw", move);
+      clearMoves();
+    }
   };
 
   const handleDraw = (x: number, y: number, shift?: boolean) => {

@@ -18,7 +18,7 @@ export const ImagePicker = () => {
           if (!file) continue;
 
           optimizeImage(file, (uri) => {
-            setMoveImage(uri);
+            setMoveImage({ base64: uri });
           });
         }
       }
@@ -41,7 +41,7 @@ export const ImagePicker = () => {
       if (fileInput && fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
         optimizeImage(file, (uri) => {
-          setMoveImage(uri);
+          setMoveImage({ base64: uri });
         });
       }
     });

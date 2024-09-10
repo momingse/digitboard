@@ -3,14 +3,13 @@ import { useBoardPosition } from "@/hooks/useBoardPosition";
 import { useRefs } from "@/hooks/useRefs";
 import { useViewportSize } from "@/hooks/useViewportSize";
 import { motion, useMotionValue, useMotionValueEvent } from "framer-motion";
-import { Dispatch, FC, SetStateAction, useMemo, useRef } from "react";
+import { Dispatch, FC, SetStateAction, useMemo, useRef, useState } from "react";
 
 interface MiniMapProps {
   dragging: boolean;
-  setMovedMinimap: Dispatch<SetStateAction<boolean>>;
 }
 
-const MiniMap: FC<MiniMapProps> = ({ dragging, setMovedMinimap }) => {
+const MiniMap: FC<MiniMapProps> = ({ dragging }) => {
   const { x, y } = useBoardPosition();
   const { minimapRef } = useRefs();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,6 +17,8 @@ const MiniMap: FC<MiniMapProps> = ({ dragging, setMovedMinimap }) => {
 
   const miniX = useMotionValue(0);
   const miniY = useMotionValue(0);
+
+  const [draggingMinimap, setDraggingMinimap] = useState(false);
 
   const divider = useMemo(() => {
     if (width > 1600) return 7;
@@ -28,10 +29,12 @@ const MiniMap: FC<MiniMapProps> = ({ dragging, setMovedMinimap }) => {
   }, [width]);
 
   useMotionValueEvent(miniX, "change", (latest) => {
+    if (draggingMinimap) return;
     x.set(Math.floor(-latest * divider));
   });
 
   useMotionValueEvent(miniY, "change", (latest) => {
+    if (draggingMinimap) return;
     y.set(Math.floor(-latest * divider));
   });
 
@@ -55,8 +58,8 @@ const MiniMap: FC<MiniMapProps> = ({ dragging, setMovedMinimap }) => {
         dragConstraints={containerRef}
         dragElastic={0}
         dragTransition={{ power: 0, timeConstant: 0 }}
-        onDragStart={() => setMovedMinimap((prev) => true)}
-        onDragEnd={() => setMovedMinimap((prev) => false)}
+        onDragStart={() => setDraggingMinimap((prev) => true)}
+        onDragEnd={() => setDraggingMinimap((prev) => false)}
         className="absolute top-0 left-0 cursor-grab rounded-lg border-2 border-red-500"
         style={{
           width: width / divider,

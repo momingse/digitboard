@@ -60,14 +60,14 @@ export const NameInput = () => {
 
   return (
     <form
-      className="flex flex-col items-center gap-3"
+      className="my-24 flex flex-col items-center gap-3"
       onSubmit={handleJoinRoom}
     >
-      <h1 className="mt-24 text-7xl font-extrabold leading-tight">
+      <h1 className="mt-24 text-5xl sm:text-7xl font-extrabold leading-tight">
         DigitBoard
       </h1>
 
-      <h3 className="text-2xl">Real time whiteboard</h3>
+      <h3 className="text-xl sm:text-2xl">Real time whiteboard</h3>
       <div className="mt-10 flex flex-col gap-2">
         <label className="self-start font-bold leading-tight">
           Enter your name:
@@ -77,7 +77,7 @@ export const NameInput = () => {
           id="username"
           placeholder="Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value.slice(0, 15))}
         ></input>
       </div>
       <button
